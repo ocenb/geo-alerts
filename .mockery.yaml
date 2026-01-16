@@ -1,0 +1,10 @@
+inpackage: true
+require-template-schema-exists: false
+template: testify
+packages:
+  github.com/ocenb/geo-alerts/internal/services/location:
+    config:
+      all: true
+  github.com/ocenb/geo-alerts/internal/services/incident:
+    config:
+      all: true

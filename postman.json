@@ -1,0 +1,223 @@
+{
+  "info": {
+    "name": "Geo Alerts API",
+    "description": "API service for tracking dangerous incidents and checking user locations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "incidents",
+      "item": [
+        {
+          "name": "List incidents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Limit (default 10)"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Offset (default 0)"
+                }
+              ]
+            },
+            "description": "Get a paginated list of incidents."
+          }
+        },
+        {
+          "name": "Create a new incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents"],
+              "query": []
+            },
+            "description": "Creates a dangerous zone incident. Returns the created incident.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 0.0,\n  \"longitude\": 0.0,\n  \"radius\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get incident statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", "stats"],
+              "query": []
+            },
+            "description": "Returns statistics regarding unique users near dangerous zones."
+          }
+        },
+        {
+          "name": "Get incident by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", ":id"],
+              "query": []
+            },
+            "description": "Returns detailed information about a specific incident."
+          }
+        },
+        {
+          "name": "Update incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", ":id"],
+              "query": []
+            },
+            "description": "Updates location or radius of an existing incident.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 0.0,\n  \"longitude\": 0.0,\n  \"radius\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate incident",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/incidents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", ":id"],
+              "query": []
+            },
+            "description": "Soft deletes (deactivates) an incident by ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "location",
+      "item": [
+        {
+          "name": "Check user location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/location/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["location", "check"],
+              "query": []
+            },
+            "description": "Checks if the user's coordinates are within any active dangerous zone.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 0.0,\n  \"longitude\": 0.0,\n  \"user_id\": \"a1b2c3d4-e5f6-7890-1234-567890abcdef\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "system",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/system/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["system", "health"],
+              "query": []
+            },
+            "description": "Checks if the API service is running."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "secret-operator-key",
+      "type": "string"
+    }
+  ]
+}

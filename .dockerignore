@@ -1,0 +1,11 @@
+*
+
+!/cmd/geo-alerts/
+!/docs/
+!/internal/
+!/migrations/
+!go.mod
+!go.sum
+
+**/mocks/
+**/*_test.go

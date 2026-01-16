@@ -1,0 +1,363 @@
+basePath: /api/v1
+definitions:
+  incident.CreateReq:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      radius:
+        minimum: 1
+        type: integer
+    required:
+    - latitude
+    - longitude
+    - radius
+    type: object
+  incident.UpdateReq:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      radius:
+        minimum: 1
+        type: integer
+    required:
+    - latitude
+    - longitude
+    - radius
+    type: object
+  location.CheckReq:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      user_id:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - latitude
+    - longitude
+    - user_id
+    type: object
+  models.CheckLocationResult:
+    properties:
+      created_at:
+        type: string
+      dangers:
+        items:
+          $ref: '#/definitions/models.IncidentShort'
+        type: array
+      has_danger:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      user_id:
+        type: string
+    type: object
+  models.HealthCheckResult:
+    properties:
+      status:
+        type: string
+    type: object
+  models.Incident:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      radius:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.IncidentShort:
+    properties:
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      radius:
+        type: integer
+    type: object
+  models.Stats:
+    properties:
+      incident_id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      user_count:
+        type: integer
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API service for tracking dangerous incidents and checking user locations.
+  title: Geo Alerts API
+  version: "1.0"
+paths:
+  /incidents:
+    get:
+      description: Get a paginated list of incidents.
+      parameters:
+      - description: Limit (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset (default 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Incident'
+            type: array
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List incidents
+      tags:
+      - incidents
+    post:
+      consumes:
+      - application/json
+      description: Creates a dangerous zone incident. Returns the created incident.
+      parameters:
+      - description: Incident parameters
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/incident.CreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Incident'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Incident already exists in this area
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new incident
+      tags:
+      - incidents
+  /incidents/{id}:
+    delete:
+      description: Soft deletes (deactivates) an incident by ID.
+      parameters:
+      - description: Incident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Incident not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Deactivate incident
+      tags:
+      - incidents
+    get:
+      description: Returns detailed information about a specific incident.
+      parameters:
+      - description: Incident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Incident'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Incident not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get incident by ID
+      tags:
+      - incidents
+    put:
+      consumes:
+      - application/json
+      description: Updates location or radius of an existing incident.
+      parameters:
+      - description: Incident ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update parameters
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/incident.UpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Incident'
+        "400":
+          description: Invalid input or ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Incident not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict with another incident
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update incident
+      tags:
+      - incidents
+  /incidents/stats:
+    get:
+      description: Returns statistics regarding unique users near dangerous zones.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Stats'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get incident statistics
+      tags:
+      - incidents
+  /location/check:
+    post:
+      consumes:
+      - application/json
+      description: Checks if the user's coordinates are within any active dangerous
+        zone.
+      parameters:
+      - description: Location parameters
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/location.CheckReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CheckLocationResult'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Check user location
+      tags:
+      - location
+  /system/health:
+    get:
+      description: Checks if the API service is running.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HealthCheckResult'
+      summary: Health check
+      tags:
+      - system
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-Key
+    type: apiKey
+swagger: "2.0"
